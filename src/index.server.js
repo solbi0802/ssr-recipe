@@ -20,7 +20,7 @@ const chunks = Object.keys(manifest.files)
   .map(key => `<script src="${manifest.files[key]}"></script>`)
   .join('');
 
-function createPage(root) {
+function createPage(root, stateScript) {
   return `<!DOCTYPE html>
   <html lang="en">
   <head>
@@ -39,6 +39,7 @@ function createPage(root) {
       <div id="root">
         ${root}
       </div>
+      ${stateScript}
       <script src="${manifest.files['runtime-main.js']}"></script>
       ${chunks}
       <script src="${manifest.files['main.js']}"></script>
@@ -76,8 +77,10 @@ const serverRender = (req, res, next) => {
     return res.status(500);
   }
   preloadContext.done = true;
-  const root = ReactDOMServer.renderToString(jsx); // 렌더링하고
-  res.send(createPage(root)); // 클라이언트에 결과 응답
+  const root = ReactDOMServer.renderToString(jsx); // 렌더링
+  const stateString = JSON.stringify(store.getState()).replace(/</g, '\\u003c');
+  const stateScript = `<script>__PRELOADED_STATE__ = ${stateString}</script>`; // 리덕스 초기 상태를 스크립트로 주입
+  res.send(createPage(root, stateScript)); // 결과 응답
 };
 
 const serve = express.static(path.resolve('./build'), {
