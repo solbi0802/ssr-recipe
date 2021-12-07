@@ -9,5 +9,12 @@ export const Preloader = ({ resolve}) => {
   if (preloadContext.done) return null;
 
   preloadContext.promises.push(Promise.resolve(resolve()));
-  return null
+  return null;
+};
+
+export const usePreloader = resolve => {
+  const preloadContext = useContext(preloadContext);
+  if (!preloadContext) return null;
+  if (preloadContext.done) return null;
+  preloadContext.promises.push(Promise.resolve(resolve()));
 };
