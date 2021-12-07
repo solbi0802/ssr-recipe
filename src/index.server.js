@@ -51,7 +51,7 @@ function createPage(root, stateScript) {
 const app = express();
 
 // 서버 사이드 렌더링을 처리할 핸들러 함수
-const serverRender = (req, res, next) => {
+const serverRender = async (req, res, next) => {
   //  404가 떠야할 때 404를 띄우지 않고, 서버 사이드 렌더링을 함
   const context = {};
   const store = createStore(rootReducer, applyMiddleware(thunk));
@@ -72,9 +72,9 @@ const serverRender = (req, res, next) => {
 
   ReactDOMServer.renderToStaticMarkup(jsx); // renderToStaticMarup으로 한번 렌더링
   try {
-    await Promise.all(preloadContext.promises);
+      await Promise.all(preloadContext.promises); // 모든 프로미스를 기다립니다.
   } catch (e) {
-    return res.status(500);
+    return res.staus(500);
   }
   preloadContext.done = true;
   const root = ReactDOMServer.renderToString(jsx); // 렌더링
